@@ -33,19 +33,23 @@ public class StudentController {
 	private TicketService ticketservice;
 	
 	@RequestMapping(value="/list",method=RequestMethod.GET , headers="Accept=application/json")
-	public @ResponseBody List getStudents() {
-		List students = service.doGetStudents();
-		return students;
+	public @ResponseBody ResponseEntity<List<Student>> getStudents()throws Exception {
+		List<Student> students = service.doGetStudents();
+		if(students.isEmpty())
+			return new ResponseEntity<List<Student>>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<List<Student>>(students,HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/{id}",method=RequestMethod.GET)
-	public @ResponseBody List getStudent(@PathVariable("id") int id)
+	public @ResponseBody ResponseEntity<List<Student>> getStudent(@PathVariable("id") int id)
 	{
 		List student=service.doGetStudent(id);
-		return student;
+		if (student.isEmpty())
+			return new ResponseEntity<List<Student>>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<List<Student>>(student,HttpStatus.OK);
 	}
 	@RequestMapping(value="/email", method=RequestMethod.POST)
-	public @ResponseBody List getStudentByMail(HttpEntity<String> httpentity)throws IOException
+	public @ResponseBody ResponseEntity<List<Student>> getStudentByMail(HttpEntity<String> httpentity)throws IOException
 	{
 		String json=httpentity.getBody();
 		ObjectMapper mapper=new ObjectMapper();
@@ -53,7 +57,9 @@ public class StudentController {
 		JsonNode obj2=obj.get("EMAIL");
 		String email=obj2.asText();
 		List student=service.doGetStudentByMail(email);
-		return student;
+		if(student.isEmpty())
+			return new ResponseEntity<List<Student>>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<List<Student>>(student,HttpStatus.OK);
 	}
 	@RequestMapping(value="/add",method=RequestMethod.POST)
 	public @ResponseBody ResponseEntity AddStudent(@RequestBody Student student)
